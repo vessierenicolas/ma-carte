@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Générateur Business NFC / QR - Baron Civrais</title>
+  <link href="index_files/css2.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #111;
+      color: white;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .form, .preview {
+      width: 350px;
+      padding: 20px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+      box-sizing: border-box;
+    }
+    h3 { margin-top: 0; color: #25D366; }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 10px;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      box-sizing: border-box;
+    }
+    input::placeholder { color: rgba(255,255,255,0.5); }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: #25D366;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: 0.3s;
+    }
+    button:hover { background: #1eb957; }
+    .secondary { background: #444; }
+    .link-output {
+      margin-top: 10px;
+      font-size: 11px;
+      word-break: break-all;
+      opacity: 0.8;
+      text-align: center;
+    }
+    .container { text-align: center; }
+    .profile {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #25D366;
+      margin-bottom: 10px;
+    }
+    .link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 8px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.1);
+      text-decoration: none;
+      color: white;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+    .link:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+    .address-link { background: rgba(37, 211, 102, 0.2); border: 1px solid #25D366; font-weight: 500; }
+    .link svg { width: 18px; height: 18px; fill: white; }
+    canvas { margin-top: 10px; background: white; padding: 10px; border-radius: 15px; }
+  </style>
+</head>
+<body>
+
+  <div class="form" id="main-form">
+    <h3>Configuration Page Client</h3>
+    <input id="name" placeholder="Nom entreprise" value="vessiere nicolas">
+    <input id="slogan" placeholder="Slogan" "="" value="scan or flash">
+    <input id="adresse" placeholder="Adresse" value="11 rue de la grande cour 79100 thouars">
+    <input id="image" placeholder="URL photo de profil" value="data:image/jpeg;base64,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">
+    <input id="phone" placeholder="Numéro de téléphone" value="0684409418">
+    <input id="email" placeholder="Adresse e-mail" value="vessiere_nicolas@hotmail.fr">
+    <input id="site" placeholder="Site web (URL)">
+    <input id="facebook" placeholder="Lien Facebook" value="https://www.facebook.com/vessiere.nicolas">
+    <input id="instagram" placeholder="Lien Instagram" value="https://www.instagram.com/vessiere.nicolas">
+    <input id="tiktok" placeholder="Lien TikTok" value="https://www.tiktok.com/vessiere.nicolas">
+    <input id="google" placeholder="Lien Avis Google" value="Avis google">
+
+    <button onclick="generate()">Générer le lien &amp; QR</button>
+    <button class="secondary" onclick="downloadQR()">Télécharger le QR Code</button>
+  </div>
+
+  <div class="preview" id="preview">
+        <div class="container">
+          <img src="data:image/jpeg;base64,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" class="profile" onerror="this.src='https://via.placeholder.com/150'">
+          <h2>vessiere nicolas</h2>
+          <p>scan or flash</p>
+          <a class="link address-link" href="https://www.google.com/maps/search/?api=1&amp;query=11%20rue%20de%20la%20grande%20cour%2079100%20thouars" target="_blank">📍 11 rue de la grande cour 79100 thouars</a><a class="link " href="tel:0684409418">📞 Appeler</a><a class="link " href="mailto:vessiere_nicolas@hotmail.fr"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"></path></svg> Envoyer un e-mail</a><a class="link " href="https://www.facebook.com/vessiere.nicolas" target="_blank"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path></svg> Facebook</a><a class="link " href="https://www.instagram.com/vessiere.nicolas" target="_blank"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path></svg> Instagram</a><a class="link " href="https://www.tiktok.com/vessiere.nicolas" target="_blank"><svg viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.9-.32-1.98-.23-2.81.36-.54.38-.89.98-1.03 1.64-.17.71.01 1.47.47 2.01.44.54 1.09.87 1.79.91.76.08 1.56-.16 2.1-.71.51-.5.71-1.22.71-1.92V.02z"></path></svg> TikTok</a><a class="link " href="file:///C:/Users/vessi/Desktop/codage/Avis%20google" target="_blank">⭐ Laisser un avis Google</a>
+        </div>
+      </div>
+
+  <div id="result" class="link-output"><strong>Lien pour NFC :</strong><br>file:///
+C:/Users/vessi/Desktop/codage/index.html?
+data=eyJuYW1lIjoidmVzc2llcmUgbmljb2xhcyIsInNsb2dhbiI6InNjYW4gb3IgZmxhc2giLCJhZHJlc3NlIjoiMTEgcnVlIGRlIGxhIGdyYW5kZSBjb3VyIDc5MTAwIHRob3VhcnMiLCJpbWFnZSI6ImRhdGE6aW1hZ2UvanBlZztiYXNlNjQsLzlqLzRBQVFTa1pKUmdBQkFRQUFBUUFCQUFELzJ3Q0VBQWtHQncwTkRRME5EUThPRGcwTkR3ME5EZzBORFE4TkRRME5GUkVYRmhVUkZoWVpIaW9nR0JvbEd4VVZJVEVqS2pVdExqQTZGeUEwT0RNc055Z3RMaTBCQ2dvS0RnME9GUkFQRnpjZEh4MHJLeXN2S3k0dExTc3ZLeXN0TnlzdEt5c3JMUzB4TFMwdExTMHRLeTB0TFMwdEt5MHZMaXN0TnkweUxTczNMUzByTGYvQUFCRUlBS2dCTEFNQklnQUNFUUVERVFIL3hBQWNBQUVCQUFJREFRRUFBQUFBQUFBQUFBQUFBUUlEQlFZSEJBai94QUE0RUFBQ0FnSUJBd0lEQmdRRkJBTUFBQUFCQWdBREJCRVNCUk1oTVVFR0lsRVVNbUZ4Z1pFSEZTTlNKRE5Da3JGeW9kSHhRMk9DLzhRQUdRRUJBUUVCQVFFQUFBQUFBQUFBQUFBQUFBRUNBd1FGLzhRQUpSRUJBUUFDQWdJQ0FnRUZBQUFBQUFBQUFBRUNFUU1oRWtFeFlRUlIwU0pTa2FIQi85b0FEQU1CQUFJUkF4RUFQd0QyVVRXTDZ5NXJEb2JCNU5mSmVZSGp6eDlmY2Z2Tms2M2tmWkxlbzVGQ0xhdWFhVUZsbXRWR29vTktHMzlENmUyL3hCT0RHUzJTM1RtMjZoamhEWWI2QldDQWJEZFdFQlBvQzI5QXl0blVBb0RkU0RZVlZBYlVCZGlTQUY4K1NTQ1BIME02eGoxMVlQVFdZSmFvdHRUa012V0p3SWJZM3hWaUI4dmp3U3hZZlh4eGJkUXg2clRsSXRvRlY0N25ETDIvYTdlUmxOWTliMWJDZXUxQkIxNTlSb2pLYXVwZHU4djFESEJLbStrTUhXb3Fia0RDMWh0VUkzOTRnSFE5WkxjL0hSbVY3cVZaU2lzcldvckt6L2NVZ253VDdEM25RYzdLcVkyMmxMYkI5cktDaE0zaUsvbXlyR0xCS1B1TXpOc1dFcHB2bUtxcDM5blVNNFhISktwZDJoZmw4a2ExS1dhZ1l0M0sya05qa3Vsb3J0QVBMMVhZSThpTk02ZHdYcUdPU3FpK2tzelBXcWk1Q3pXTHJrZ0cvSkd4c2UyNTlNNlAwKzFmNWhqYU5qc0h0cTdsV1VsbU95dDVDQWlnQjFBbzl5cmI1ajV5SjNneUJFa3NnUkVRRVJFQVpqS1pJUTNJVEJtSk1DN2s1VEVtWTdsUnM1UnltdmNibW9ObTVDWmh1TnpReUptTVJDRWtSQVJFUWhFUkFSRVFFUkVCRVJDdnVqWHY3L1gzaUpsc01taDZ5eElNZEQ2Q1NVekV5Qm9maEpFa2dzdTVoRURMY3U1cmxsR2U1TnpDTnlJeWszTVppVEtNeVpnVE1keWJoRkptQk1FeUR6Q0c0M014RTFJSURMRVNoRVJLRVJFQkVSQVJFUUVSRUJFUkNFUkVLKzZJaVliSkpaSUdKTXhsTXhtUU1rU1FFUkVvUkVHQklpU1JBbVlFeWt6QmpLaUV5YmtrSmdYY0xKQU1SR3dSTVZNeW13bGtpQWlXWWx4dlJJQjhlTmpmdi80UDdRTW9tSWRUN2p6NmVSNThiLzQ4ektBa2xrZ0lpSVJZaUJLcEVSQ0VSRUsrNklrbUd5U1dTQmpNWlRKTWlUcTNXVnljanExT0hWbTVPSFY5Z3N5VDltRlBKN1JlcURmTkc4YWFkcG10Y2F2dkxkd1R2QmUwTGVJN2dyTEJpbkwxMXNBNi9DV0RyUFRQaVRwMk1qVlc5VWJMY1dQdTNJVUYxSStVMTdyckEwQ3AvY3psMitJTUFZeTVoeWFoaXMzQmJ5U0VMY3ltdjl5c1AwbmxPVDFISU52VHZzdldjWER4OGRuWEx4bjZrTWR5NHpyV2NHc2V1MEsvbk0wYzNXNFZpWTlQVU1SbnpkNHoyaW12SXV2NnZsakdkaUZQY1FFRThUc0Rsc0RabXRLOVdxNjVndlkxUzVOSnNSM3JaT1dpSFZRekR6K0JCL1daL3dBMXhlS3QzazR0UStXcDgrY1pOY3JmK2tjbC9lZVk0dlNxck1GRG1MZzJXdFNyV20zcHF0WDByRVZSVDlsc1lNTGoybVJsNTh3eWNkbmZwUGl2enVvSzF5dGkvT2FseE81UjFUUHV2KzBKblk5VHFwZHlSUzlyVmdvdkZpcFB6U2FSNnUvV3NSZU83bCtlbGNwQ0F4RFk1OUxBUVBUeUo4ZC94YjB1dXl5cDh1b1dWTzFkaTZjbExGT2lwMFBVR2RGT1RiaDRpWS8rSnV4YS90M2FlbnFObUpmaVdZbVdhYmxyQUI1MGFGWlJINUZRV0JZK0p4ZnhUbVpiV1hWWVBWc2ZwNzFkUzZ3YjZyT29mWTNibmtBMXNWSHI0Qi9lWFJwMmZyOWxoNmQxRHFlQjFyTnRHT0xuVkZHS2FVc0dqMmp1cmxvQmg3N25lMzlUT3RmQzc0MmNuVnlEVms0MS9VYmh2NWJhYmsrejBnL2d3MkRPeXRJbFlHU0RKSXlvOUpCQTlJRXNSbUpuTlltWW1sV0JKS0lId1l1WXpNeGI3cks5dzJRb3JxQjRvUHpiUlA0VHovNHYrS0h4cjJaRzVNMm1yVU9lSlVNUjRLK1BHeis4NzloVU9yTUNOQkt6UVNkamtvSmF0bFA1TVFaNWg4ZDlCeU1qS0JxQ2sxODBZTXhCMlcyQ05qeUo2dUdZK1YyK1IrUjNPT2NsMU4zNjlNdmhyNHh2eWNwS25VcG9GMVpiU2RjUUJvZ2owMTRucUdSbHVWUnF3UG1WN0ZJWlhWaW5rMTdIMUcvUDRUeUg0UytIOG5IeTF0dVJlUEZrQVZpekZtMXJXaFBYY3VpempXVjhsRmRGVUZtUGRjY1F4Si8wZ0VtT2FZN21qZzZ5NUp4WHJVKysvZjhBcDl5TUdBWWVqQUVma1JMSldnVlZVZWlnS1B5QTFMUEsrdFBqc2lJZ0JMR29sVWlJZ0lpSUgyeEpFdzJTUkpJSkpFa2dTcjZpU1VRUE5NajRnWElzeE9tVjUyVFhiZmxuR045Vlg5VHUxdXpPRnlGL3AyTHhzckRBSGE2WHhzbldpak1ySFVlV1RXMXYyTzZ4S2NoTzMxdTQ5dGpxdFhVbTJxd2ZlWkZCNGNnVHJsUHM2alYvTU9ySmswMnIyTU9wa3gzQVVZMlBiWllRMTRzSkgrSTNVVjdXdGZLcDVEZXBxNjdsWDVIZXhxdytLMXRacXpHZkdYTnNYQ3N1c0xzbDlUZ0s5YVA1cks3QkdnWDhFN1Y4S2Rmd2haVGdacjJ0ajVWRnE2dzJ0ZjdhTTFPOVdXb0E3cGNyYXY4QVZJMnpGdDZtenB0ZlVFdHZwVHFKcEZtRFRrNVdma2c1Q1ptTFV2RnN2RXlOOFVBRmdPajkwa0djejhQZkR0VFZERVFaR0xqSlRlS3c2NG1SYmtZejVObkJuYTZra0t5QU1FOGE1YU81OVhVc2JCd1FsV2JYZm5WQ211akhyS1l0YTAxY2l6VjZyV3RlRzZxam9nK1ZFc203cUp0MCtucko2alhsY0NYczZtbjhxd1FYUTJ1RXBxeWE2cmJGSkN1RGtXYmYxM3NOb2ljcGw1ZWRoNHJkUmZJU3RWRllHUGYxTmN0TE9vTGRrMHRqOXc2SEhpVWR2b2F0ZXpUNnY1djAydHc5WFRxeUJZMTNic3J4VlUyc05NNVBiWnVSOGJPOStCTnY4MXhNeTNIZXpBV2s0OXFsSHhEVDNLdzRiazVMaFZDamo1OVRwam9iblhMaHp4bTdPazhwZmJrL2dQcTltZGhQYmRrVTVWaVh2VTFtTlNhYWxLcXBLRDJiUkorWWVEc2FuWVduQi9COTVzeDcyKzJWNXY4QWk4a0I2azQxMGdFYW9CME9YRWE4L2pPYko4NjkvWDlKd3FWaVpKVEpJQTlKQktQU1FlOHNaWkNiQk5ZbVltaU1wcWE5UllLdC9PVkw2SHNvOXo5SnRFNFMxK1hmT3lyM1pLWXZNZUNsWTE2ZnB2OEFlUzNUVWptcDhXYTFWYmgyUjN0STJPSDlxYjhra2hWSHpuMVB2TldSMU1ZK05tWk5vQXB4ZTd4Q2dzeFN0ZmY2N004bWIrSTNVclFvYzRiZVF3VTRWamdQN2ErYnpPbUdGeTdqVTR2UDA5YndiYVhaUUtySzNRQmw1amFsUXZEWVpTVlBqUTlad1g4UnVzMzQyQlZaaFhpdDdNcXVrM0x3ZFFwUnlRU1FRUElFNnBiOFg1MU5MZnpCYVVGd0RMajBVSEh0dUd2OVhrNkI5LzhBdnMvTE9yMGZFSnlMMVRxRzdNSnJCWTJPaE5TS1FwVmRGZk9nR1A4QTYySTR0M0xldDR6My9IN2RNdnhMamhaT3JmVHVYd0I4UWRSdTZtbU5sNWJYZzBYdTlYR3JnakRqeCtaUjk3MS9lZW5tZGIrR1BodnBOQlROd0svTG95clozcmJOSzJ0alRNUUQ0blpKcmx5eHl5M2pIbHd4eXhtc3IyU3lTem0yUUlFUUVSRUJMRXNENllraWNteUlrZ1NTV1NBbFgxSDVpU1ZmVWZtSUhqRk9YUm1aSFU4UjhoY094OGhyV1RwMk1jbkNjVnN1c214clM2SVJzRGRZUTczdmZqWE1XNDFUWnRWR1RaYXFaVDAyVjJYZFFUcFBVckNiR0ZuUEdwUkZkU1JvRWptZko1YUlBZkVIUytxM1lPUFZValkrTDNNbW5JeE1kTEwzeU1XKzRraGtZbGd5OXNubC93RGVOYTBkOEJsOUh3emw0dG1SaDA5UHhPbmlqS3lLYk1KYSs5UzdsYThkZyszdnRKUmxMYjRuNmIzTnE3ejB2cWJZcUpaYTlXVFZWakdsTDF6S09UWXRSYXltNjFyR0hKMm9hdDJJOGVTZENmSjhZOVJONzEwbW8wM1ZjYkhyYTJpMSsyNFlLMnEySkEvT2RVK0p1bjlRUjgybkh5YStwNGI1aHhxZWkxMW05SzZxZ0xHcCtVN3h1MkNWK1hSK1VhMTRuSVp2eEFydXVPdGVSU3VQYmswMDB0UXVQajFWZDlPeW5iMER5Q282Nzl2SVByT3ZEMXlZMzdZNU4rTjAwZHAvN1cvMm1hZW8wT01lOE50UGxwY2JWVHlDNUZmalRBZ2o1cHlaNjFrK3poZitrYWt4aWMyNWFzb3ZZbHZHb2hkOXppYkZiNWRlZC9MdjlKOVRuM2VQSjRPRzg5em5sSkk3Ti9EelBmSXdDMW94bHNTKzFHR0xXdElJOEVNNkR3R0lQN0JaMlF6eFhwUFZiK241RDJZNTN3ZDZySzI4SmtJamthWWUzb1NEN2IvTUgyZWk1YmE2N1U4cGFpV0wrS3NOai9tZkd5ajNxWkpUSk1vbzlKajlaa1BTVDZ5d0ZteFpyRTJDVkdZbkZYWTI3TGFmS20waklwczFzTGF1dGcvc1AzbktDZkYxM3FhWVdMYmt1T1FyQTRxUDlUazZWZjNJbHMyMUhVZjRuZFdHTGlXNHRTb2JNNUxUZnNrOGF5dkhrQnZ3U2Y4QWd6Ny9BSVg3RjNSY0dwcktsWTR0SHE2Y2tzWFJCSTM3TUI0bmxQVzh5N0phNjYxeTFsZ1ptSituc28rZ256djAzRkNZYlBqNTQ3eEhlYzFvRXNIQW4ra2RlZk9qNTl0emY5UGhyTDNmK1BWdzhWeW5WWi9HUFQ4aWpNdGE5KzczR1BHMVhEcnIxQ2JIcG9lbjRmcnE5RzZFdDFRdnZka3FibjIxUmtRc3FFQjdXZHZDVmhtQzcwU1NkQUdiOERFeFVPWUZ4K29XMGdLQWdyUWdEanYrcHIwSVBrRWVSUGl0ejh2SFNnSllUanNpbkhZMXI5eFdzSUI4ZmVWckhQNTZQc0ozNGVTV2VFOU92UHg1NjZ2ZnQyWDRRK0tSMHZNc3hXTEhDTDhRSFlsaytoMlZYOU5nZlQ4UjdMUmFsaUxZakJrY2NsWWVoRS9NQllra3NTU2ZVc1NTZnpKbnEzOE5lb1p0RklHUU40cnNpMUs1UGUweDF6QStucCtmNkRmUDhpWThlc3JkYmM4dUc1emMrWTlNbDFHb25KNU5BalVvaUNwRXNRaEVTd044UkU1TnBFc1FNREVwa2dKaXR5ZHdWOGw3bXU1MitRNThPV3VYSDExdnh1WlRxblc4aS9FNnRUbUpoWnVaVWNDekdKdzY2M0tXbklWeHk1TVBaWlIwSEs2YmQzZW5IRzZQalpsR1M5alptVS9UemtPR09kYXJFdVBUU0FIelBxeGEwUGF3K3lxWXRhNTJSZm1uZ1V4S2NicTJYMlVaYlFhK0c5K0NObjI5UEhkT21mRHZTOHhHdXM2UWNWalkrNjh5bEV0WW5UR3pTc1JvbGoreG5NMDlCd2E2bW9UR3BXbDZqanRXRStScUM3T2F5UHB5ZHovK2pOYkhrK0hVbG1Hb3k4aEZiS3RyNnIxSzdzM1kxT1F1VlF0djJNNUpQQ2wyVnd1bElCSHFENW4yZkVvdXpzcjdaaENxL0JydnNwUzZqR1pLd2RjN0dOaDJMaWVEZk9QUTZIK3FlZ3Q4SGRKTlhaT0RqR3JuM08yVStYdWNlUExYMTRnQ2NwYmhvV1d4QXFXb0FFczQ3NHJ5REZTUEd3U28zL3pMam40MlVzMjhuN05tdVhidDQrQnk3Vm5IMTBQT3RUa2NUcHViUTMybjdKa2tVSmRkNXFLRWxhbklBNWE4azZFOUM2blRtWDB1Z3ZvV3pSTlRmWjNDSytpQnYrb1RyeVI0K3M4dytJdmliclZmY3djeHhRcm8xUnJTbXRhN2FpTkhnK3RzdXZjSGZuMm5yeS9MeXpsbW5PY2NsZFhyNUFhY010ZzhPcmdoMWNmZUREMk85N25yM3dMa2QzcGVMOWFsYWh2cURXeFVEL2J4UDZ6eDZpcEt4eFJRcWowQTlCT1grR3ZpditWWlM5d2xzVEo4WkNBYk5aR2d0eWo2ajBJOXgrUW5tOGZMcU5aZFRkZXltU1ZMRXNSYksyRG82aGtkVHRXVWpZSVB1SW5KQWVreG13RHhNTlN6NUFUTlppQk0xRTBNaE9sL3hTelZYRXJvREtYZTVHWkF3TEJGVmpzajFBMlJPNnJQQy80aGRGeWNEcUYyUzd0Y21ZN1dWM2xTQUFUL0FKVEgwMm9BQS9EVTZZWWVWMDZjZUhsWEVaZzJqYS90Yi9pYmNjczV3YW1UTnRCYlFRWlM2YittZkZZSjBuL2J4c1RYaEJzdmpTaWsyMjdWYTE4c3gvQVR0K0IvQzNNTmFOYmRqVnY2OEdHUzdwK3FXQWIvQUNsdVBYamJyVDJjUExqeGVVeWNYMHpwYXMrZVA4WFJ3S0wybXlUeS93QXJlM0tIVFRtdmhEb0ZQVk9raXAvRnFVMWR0OS9jYzJYSFg0ZTMvcllOZitGV1Q4M0hLeGxMRHl5cGw3UDcybmY2ejBINFk2Ui9MOExIeE9Rc05Ta05ZRjRCMkxGaWRmcnI5SXptUGpqcTl4NVpubmpueTVlZTVsWnFmMi92L0x5anBId1NhckxQdHZ6T0dOVk5WWUpQYzltWWU1OXd2cDc3SW5wdlFPaE5TRmZKYnUycVNhMThsYWRueDVKUEpoNmI5dmI2em11eW5QdWNWN211UFBpT2ZINmI5ZFRPY1BHNVpYTE83L1gwNlova1c0ekhHYS9mMnNSTE52T0NTWlNRaVN4RXFFU2lOUU4wUkU0dGtSRURFeVFaSlFpSWdJaUlDSllnU2FjdkZxdlExM1YxMjFuMVMxRnNVL29adWtnZVk5YS9oM2xDK3c0Sm9PTzN6VnJmYzZQV1QvOEFINFE3QTlqNi90czhCZC9DM3JOakZtZkIzN0FaRjJnUHAvbHoyMlNkTU9hNDl5TVpZNzZycC84QUQ3b25VdW5ZOXVObldVUFVySzJNdE5qMkdzSGtiRkpaUjh1K0pBL0V6dEJFMnNKaVJNNVpYSzdwSnFhUlI0bU9wc1VlSmpxU2ZLb0JNd0pBSmtCTkN6Um5ZVk9UVTFOOWFXMU9OTWpqWVA0L2dmeG4wQ1dWWmRmRHEzUi9nVEF3czQ1MUlzNWNDdGRWamM2NkdJMHpLVDUyUjQ4azYyWjJlWFVtcGJiZmt0dDdwSkxxTlNDU3hFSXNTU3dFUUpZRWxpSlFpSWhXNklpY1ZJaUlHSm1NekltT29FbGpVU2pydlZlb1hMZG1GYiswTUtyR3NyeHd0WkdVYk5uYjhnVzB6RHRyeDE1QjlmUWZQMFRxbVRabW1xeDdqVzl2VlFEYXVNTWRxNk1scTBXZ3A4L0lmTHNQNmpaRzUyRE82Ymo1UEEzMDEybXNocTJkQVhxWU1HREkzcXAyQWRqNlRlS1VHdEtvNHN6cnBRT0x0dmt3K2hQSnRuMzJZMk90dDFpeXBic3kyODhhcnVvMW5wM2JySnNyeDF0S3JXZEJ4WVZxV3paSlhURWE4Z2paZjErOEd5Z1ZZNHZVT1RZTWxqamhSajkzdy9EWnM4ajVkZW56YjlwenE0dFFzYTRWMWk1bDROY0VVV3NuOXBiV3lQd21IOHV4dTMyZXhSMlEzTVZkbXZ0aC93QzdqclcveGxIRGRJNjlkYmRWam1obVFDdW0zSjVhWVcvWlZ1TGxkQWNUeTFvRW55RHJXOWRobXNZbFFzRm9yckZvWHRpd1ZxTEJYL1p5MXZYNFRicVJLa2t5azFBd0lrMU5tbzFDTUFQRWdXYk5TUlBsV09wZFRQakdwMFJqSk10UnFCak9xOWM2M2ZpMjV4TGpzQk1XcWdoQVRSbE9wSTVIM1YvdStmUWhSL3E4ZHIxTUdwUTh0b3A1NjViVUhucjAzOWRRT29yMVRNN0dibGQyNEttWmxZcUYxeFRpMDFMbm1qdUFBZHpkYUFzZVhqNVR1ZGg2WHlIZnJiSisxR3EzaHpaRVcydmRhTjI3Q2dDbHZtM3NBZUdVSHlObjdSVWdVcUZVSzNJc3ZFY1dMRWx0ajMyU2QvWGN4eHNhdXBCWFVpVjFydmlsYUtpRGZyb0R3SUdVVExVa0NTeEVDNmlXU1dCRVJDa1JHb0c2SWljVklpSUNJaUVUVWFsaUZUVWFsaUJOUnFXSUUxR3BZZ1RVYWxpQmpxSmxxU0VUVW1wbnFYVW8xNmwxTmdXVUxOUWErTWNKdDR4cVVhZU1uR2JpSmlSS05YR09NMkVTYWdhOVJxWjZrMUNNZFNhbWVwTlNpU2FtV28xQWtTNmpVQ1JxWmFqVURPSWljV2lJaUFpSWdJaUlDSWlBaUlnSWlJQ0lpQWwxRVFLQk10UkUwTWdzeUN4RXFtbzR4RTBNU0pDSkloRTFKcUlnVFVtb2lFVFVhaUpRMUpxSWdYVWFpSkExTHFJZ2YvL1oiLCJwaG9uZSI6IjA2ODQ0MDk0MTgiLCJlbWFpbCI6InZlc3NpZXJlX25pY29sYXNAaG90bWFpbC5mciIsInNpdGUiOiIiLCJmYWNlYm9vayI6Imh0dHBzOi8vd3d3LmZhY2Vib29rLmNvbS92ZXNzaWVyZS5uaWNvbGFzIiwiaW5zdGFncmFtIjoiaHR0cHM6Ly93d3cuaW5zdGFncmFtLmNvbS92ZXNzaWVyZS5uaWNvbGFzIiwidGlrdG9rIjoiaHR0cHM6Ly93d3cudGlrdG9rLmNvbS92ZXNzaWVyZS5uaWNvbGFzIiwiZ29vZ2xlIjoiQXZpcyBnb29nbGUifQ==</div>
+  <canvas id="qrcode" height="200" width="200" style="height: 200px; width: 200px;"></canvas>
+
+  <script src="index_files/qrcode.min.js"></script>
+
+  <script>
+    let currentURL = "";
+
+    function renderProfile(data) {
+      const phoneClean = data.phone ? data.phone.replace(/\s/g, '') : '';
+      
+      const icons = {
+        facebook: '<svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>',
+        instagram: '<svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>',
+        tiktok: '<svg viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.9-.32-1.98-.23-2.81.36-.54.38-.89.98-1.03 1.64-.17.71.01 1.47.47 2.01.44.54 1.09.87 1.79.91.76.08 1.56-.16 2.1-.71.51-.5.71-1.22.71-1.92V.02z"/></svg>',
+        email: '<svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>',
+        star: '⭐'
+      };
+
+      const links = [
+        { label: `📍 ${data.adresse}`, url: data.adresse ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.adresse)}` : null, isAddr: true },
+        { label: '📞 Appeler', url: phoneClean ? `tel:${phoneClean}` : null },
+        { label: `${icons.email} Envoyer un e-mail`, url: data.email ? `mailto:${data.email}` : null },
+        { label: '🌐 Site web', url: data.site },
+        { label: `${icons.facebook} Facebook`, url: data.facebook },
+        { label: `${icons.instagram} Instagram`, url: data.instagram },
+        { label: `${icons.tiktok} TikTok`, url: data.tiktok },
+        { label: `${icons.star} Laisser un avis Google`, url: data.google }
+      ];
+
+      let linksHTML = links
+        .filter(l => l.url && l.url.length > 5)
+        .map(l => `<a class="link ${l.isAddr ? 'address-link' : ''}" href="${l.url}" ${l.url.startsWith('tel:') || l.url.startsWith('mailto:') ? '' : 'target="_blank"'}>${l.label}</a>`)
+        .join('');
+
+      return `
+        <div class="container">
+          <img src="${data.image}" class="profile" onerror="this.src='https://via.placeholder.com/150'">
+          <h2>${data.name}</h2>
+          <p>${data.slogan}</p>
+          ${linksHTML}
+        </div>
+      `;
+    }
+
+    function generate() {
+      const data = {
+        name: document.getElementById('name').value,
+        slogan: document.getElementById('slogan').value,
+        adresse: document.getElementById('adresse').value,
+        image: document.getElementById('image').value,
+        phone: document.getElementById('phone').value,
+        email: document.getElementById('email').value,
+        site: document.getElementById('site').value,
+        facebook: document.getElementById('facebook').value,
+        instagram: document.getElementById('instagram').value,
+        tiktok: document.getElementById('tiktok').value,
+        google: document.getElementById('google').value
+      };
+
+      document.getElementById('preview').innerHTML = renderProfile(data);
+      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+      currentURL = window.location.href.split('?')[0] + "?data=" + encoded;
+      document.getElementById('result').innerHTML = "<strong>Lien pour NFC :</strong><br>" + currentURL;
+      QRCode.toCanvas(document.getElementById('qrcode'), currentURL, { width: 200 });
+    }
+
+    function downloadQR() {
+      const canvas = document.getElementById('qrcode');
+      const link = document.createElement('a');
+      link.download = 'qr-code.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+
+    window.onload = () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("data")) {
+        try {
+          const data = JSON.parse(decodeURIComponent(escape(atob(params.get("data")))));
+          document.getElementById('preview').innerHTML = renderProfile(data);
+          document.getElementById('main-form').style.display = 'none';
+          document.getElementById('result').style.display = 'none';
+          document.getElementById('qrcode').style.display = 'none';
+        } catch (e) {}
+      }
+    };
+  </script>
+
+</body></html>
